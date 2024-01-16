@@ -186,7 +186,3 @@ public:
 private:
   LinkedList<T>* queue;
 };
-
-// Testing the interface
-void test_stack();
-void test_queue();

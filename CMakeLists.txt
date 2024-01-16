@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_subdirectory(datastructures)
-add_executable(Test_DS tests/ds_test.cpp)
+add_executable(Test_DS tests/list_test.cpp)
 target_link_libraries(Test_DS PUBLIC datastructures)
 target_include_directories(Test_DS PUBLIC datastructures/include)
 
@@ -20,5 +20,5 @@ function(test_list target arg result)
 endfunction()
 
 # run tests for DSList
-test_list(Test_DS 1 "2 -> 1")
-test_list(Test_DS 2 "2 -> 3")
+test_list(Test_DS 1 "2 -> 1") # stack
+test_list(Test_DS 2 "2 -> 3") # queue
