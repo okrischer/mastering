@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_subdirectory(datastructures)
-add_executable(DS_test tests/ds.cpp)
-target_link_libraries(DS_test PUBLIC datastructures)
-target_include_directories(DS_test PUBLIC datastructures/include)
+add_executable(Test_DS tests/list_test.cpp)
+target_link_libraries(Test_DS PUBLIC datastructures)
+target_include_directories(Test_DS PUBLIC datastructures/include)
 
