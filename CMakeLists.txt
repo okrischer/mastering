@@ -13,12 +13,12 @@ target_include_directories(Test_DS PUBLIC datastructures/include)
 
 enable_testing()
 
-# tests for DSList
-function(test_list target arg result)
-  add_test(NAME DSList${arg} COMMAND ${target} ${arg})
-  set_tests_properties(DSList${arg} PROPERTIES PASS_REGULAR_EXPRESSION ${result})
+# tests for lists
+function(palindrome target arg result)
+  add_test(NAME Palindrome:${arg} COMMAND ${target} ${arg})
+  set_tests_properties(Palindrome:${arg} PROPERTIES PASS_REGULAR_EXPRESSION ${result})
 endfunction()
 
-# run tests for DSList
-test_list(Test_DS 1 "2 -> 1") # stack
-test_list(Test_DS 2 "2 -> 3") # queue
+palindrome(Test_DS Racecar palindrome)
+palindrome(Test_DS Rotator palindrome)
+palindrome(Test_DS Palindrome nope)

@@ -186,3 +186,8 @@ public:
 private:
   LinkedList<T>* queue;
 };
+
+// Testing the interface
+
+// Checks wether a given string is a palindrome.
+bool is_palindrome(std::string s);
