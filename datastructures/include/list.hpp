@@ -190,3 +190,4 @@ private:
 // Testing the interface
 
 bool is_palindrome(std::string s);
+bool is_balanced(std::string s);
