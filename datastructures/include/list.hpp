@@ -10,7 +10,7 @@ public:
   T data;
   Node* next;
 
-  Node(int d, Node* n) : data{d}, next{n} {}
+  Node(T d, Node* n) : data{d}, next{n} {}
   ~Node() {}
 
   void print() {
@@ -189,5 +189,4 @@ private:
 
 // Testing the interface
 
-// Checks wether a given string is a palindrome.
 bool is_palindrome(std::string s);

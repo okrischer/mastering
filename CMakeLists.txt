@@ -7,18 +7,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_subdirectory(datastructures)
-add_executable(Test_DS tests/list_test.cpp)
-target_link_libraries(Test_DS PUBLIC datastructures)
-target_include_directories(Test_DS PUBLIC datastructures/include)
+add_executable(DS_Test tests/ds_test.cpp)
+target_link_libraries(DS_Test PUBLIC datastructures)
+target_include_directories(DS_Test PUBLIC datastructures/include)
 
 enable_testing()
-
-# tests for lists
-function(palindrome target arg result)
-  add_test(NAME Palindrome:${arg} COMMAND ${target} ${arg})
-  set_tests_properties(Palindrome:${arg} PROPERTIES PASS_REGULAR_EXPRESSION ${result})
-endfunction()
-
-palindrome(Test_DS Racecar palindrome)
-palindrome(Test_DS Rotator palindrome)
-palindrome(Test_DS Palindrome nope)
+add_test(NAME Palindrome COMMAND DS_Test)
