@@ -12,14 +12,6 @@ public:
 
   Node(T d, Node* n) : data{d}, next{n} {}
   ~Node() {}
-
-  void print() {
-    if (!next) std::cout << data << "\n";
-    else {
-      std::cout << data << " -> ";
-      next->print();
-    }
-  }
 };
 
 // The puplic List interface, implemented by all lists.
@@ -28,7 +20,6 @@ class List {
 public:
   virtual ~List() {}
   virtual int size() const = 0;
-  virtual void print() const = 0;
   virtual T peek() const = 0;
 };
 
@@ -49,12 +40,6 @@ public:
 
   // Returns the current size of the list.
   int size() const override {return sz;}
-
-  // Prints the current list.
-  void print() const override {
-    if (!head) std::cout << "empty\n";
-    else head->print();
-  }
 
   // Returns the head of the list.
   // If the list is empty, an out_of_range exception is thrown.
@@ -117,11 +102,6 @@ public:
     return stack->size();
   }
 
-  // Prints the current stack.
-  void print() const override {
-    stack->print();
-  }
-
   // Returns the top element of the stack.
   // If the stack is empty, an out_of_range exception is thrown.
   T peek() const override {
@@ -159,11 +139,6 @@ public:
   // Returns the current size of the queue.
   int size() const override {
     return queue->size();
-  }
-
-  // Prints the current queue.
-  void print() const override {
-    queue->print();
   }
 
   // Returns the head of the queue.
