@@ -20,7 +20,7 @@ class List {
 public:
   virtual ~List() {}
   virtual int size() const = 0;
-  virtual T peek() const = 0;
+  virtual T peek(int n) = 0;
 };
 
 // A singly linked list with references to the head and the tail
@@ -41,11 +41,15 @@ public:
   // Returns the current size of the list.
   int size() const override {return sz;}
 
-  // Returns the head of the list.
-  // If the list is empty, an out_of_range exception is thrown.
-  T peek() const override {
-    if (head) return head->data;
-    else throw std::out_of_range{"cannot peek from empty list"};
+  // Returns the element with the given index (starting with 1).
+  // If there is no element at the given index, an exception is thrown.
+  T peek(int n) override {
+    Node<T>* node = head;
+    for (int i = 1; i < n && i < sz; i++) {
+      node = node->next;
+    }
+    if (node) return node->data;
+    else throw std::out_of_range{"List::peek()"};
   }
 
   // Inserts a new element at the head of the list.
@@ -66,7 +70,7 @@ public:
   }
 
   // Removes and returns the head of the list.
-  // If the list is empty, an out_of_range exception is thrown.
+  // If the list is empty, an exception is thrown.
   T removeHead() {
     if (head) {
       Node<T>* first = head;
@@ -75,7 +79,7 @@ public:
       delete first;
       sz--;
       return elem;
-    } else throw std::out_of_range{"cannot remove from empty list"};
+    } else throw std::out_of_range{"List::removeHead()"};
   }
 
 private:
@@ -104,8 +108,8 @@ public:
 
   // Returns the top element of the stack.
   // If the stack is empty, an out_of_range exception is thrown.
-  T peek() const override {
-    return stack->peek();
+  T peek(int n) override {
+    return stack->peek(n);
   }
 
   // Pushes a new element on top of the stack.
@@ -143,8 +147,8 @@ public:
 
   // Returns the head of the queue.
   // If the queue is empty, an out_of_range exception is thrown.
-  T peek() const override {
-    return queue->peek();
+  T peek(int n) override {
+    return queue->peek(n);
   }
 
   // Enqueues a new element at the tail of the queue.
