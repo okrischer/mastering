@@ -14,6 +14,7 @@ FetchContent_Declare(SFML
 FetchContent_MakeAvailable(SFML)
 
 add_subdirectory(datastructures)
+
 add_executable(DS_Test tests/ds_test.cpp)
 target_link_libraries(DS_Test PUBLIC datastructures)
 target_include_directories(DS_Test PUBLIC datastructures/include)

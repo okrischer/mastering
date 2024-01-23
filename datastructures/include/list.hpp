@@ -2,6 +2,8 @@
 #include <iostream>
 #include <stdexcept>
 
+namespace list {
+
 // A generic container for storing one element of the given type
 // and a pointer to the next element.
 template<typename T>
@@ -165,6 +167,7 @@ public:
 private:
   LinkedList<T>* queue;
 };
+} // end of list
 
 // Testing the interface
 

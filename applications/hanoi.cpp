@@ -1,12 +1,10 @@
 #include <SFML/Graphics.hpp>
-#include <iostream>
-#include "SFML/Graphics/RectangleShape.hpp"
 #include "list.hpp"
 
-auto* moves = new Queue<std::pair<char, char>>{};
-auto* start = new Stack<int>;
-auto* temp = new Stack<int>;
-auto* goal = new Stack<int>;
+auto* moves = new list::Queue<std::pair<char, char>>{};
+auto* start = new list::Stack<int>;
+auto* temp = new list::Stack<int>;
+auto* goal = new list::Stack<int>;
 
 // solve the towers of hanoi puzzle with recursion
 void solve(int n, char s, char t, char g) {
@@ -17,7 +15,7 @@ void solve(int n, char s, char t, char g) {
 }
 
 // get the towers for making a move
-Stack<int>* getTower(char t) {
+list::Stack<int>* getTower(char t) {
   switch (t) {
   case 's':
     return start;
