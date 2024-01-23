@@ -1,7 +1,8 @@
 #include <SFML/Graphics.hpp>
+#include <iostream>
 #include "list.hpp"
 
-auto* moves = new list::Queue<std::pair<char, char>>{};
+auto* moves = new list::Queue<std::pair<char, char>>;
 auto* start = new list::Stack<int>;
 auto* temp = new list::Stack<int>;
 auto* goal = new list::Stack<int>;
@@ -10,7 +11,7 @@ auto* goal = new list::Stack<int>;
 void solve(int n, char s, char t, char g) {
   if (n == 0) return;                  // base case: do nothing for zero disks
   solve(n-1, s, g, t);                 // move n-1 disks from start to temp
-  moves->enqueue(std::make_pair(s,g)); // move a single disk from start to goal
+  moves->push(std::make_pair(s,g)); // move a single disk from start to goal
   solve(n-1, t, s, g);                 // move n-1 disks from temp to goal
 }
 
@@ -34,7 +35,6 @@ void makeMove(std::pair<char, char> move) {
   auto to = getTower(move.second);
   to->push(from->pop());
 }
-
 
 // set the color of the given shape
 void setColor(int d, sf::RectangleShape& disk) {
@@ -167,7 +167,7 @@ int main(int argc, char* argv[]) {
 
     // make next move
     try {
-      auto move = moves->dequeue();
+      auto move = moves->pop();
       makeMove(move);
     } catch (std::out_of_range& e) {
       std::cout << "successfully displayed animation.\n";

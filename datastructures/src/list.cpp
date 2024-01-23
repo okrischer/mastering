@@ -12,12 +12,12 @@ bool is_palindrome(std::string s) {
     if (isalpha(c)) {
       char l = tolower(c);
       stack.push(l);
-      queue.enqueue(l);
+      queue.push(l);
     }
   }
 
   for (int i = 0; i < stack.size(); i++) {
-    if (stack.pop() != queue.dequeue()) {
+    if (stack.pop() != queue.pop()) {
       palindrome = false;
       break;
     }
