@@ -4,15 +4,15 @@
 
 // Checks wether a given string is a palindrome.
 bool is_palindrome(std::string s) {
-  auto stack = list::Stack<char>{};
+  auto stack = list::Queue<char>{};
   auto queue = list::Queue<char>{};
   bool palindrome = true;
 
   for (auto c : s) {
     if (isalpha(c)) {
       char l = tolower(c);
-      stack.push(l);
-      queue.push(l);
+      stack.push_front(l);
+      queue.push_back(l);
     }
   }
 
@@ -28,10 +28,10 @@ bool is_palindrome(std::string s) {
 // Checks for balanced brackets
 bool is_balanced(std::string s) {
   std::map<char, char> matcher{{'}', '{'}, {']', '['}, {')', '('}};
-  auto stack = list::Stack<char>{};
+  auto stack = list::Queue<char>{};
 
   for (char c : s) {
-    if (c == '{' || c == '[' || c == '(') stack.push(c);
+    if (c == '{' || c == '[' || c == '(') stack.push_front(c);
     else if (c == '}' || c == ']' || c == ')') {
       if (stack.size() == 0) return false;
       if (matcher[c] != stack.pop()) return false;
