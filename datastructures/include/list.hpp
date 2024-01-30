@@ -19,7 +19,7 @@ public:
 template<typename T>
 class List {
 public:
-  ~List() {}
+  virtual ~List() {}
   virtual int size() const = 0;
   virtual T peek(int n) const = 0;
   virtual T pop() = 0;
