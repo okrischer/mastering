@@ -16,7 +16,7 @@ void solve(int n, char s, char t, char g) {
 }
 
 // get the towers for making a move
-list::Queue<int>* getTower(char t) {
+list::List<int>* getTower(char t) {
   switch (t) {
   case 's':
     return start;

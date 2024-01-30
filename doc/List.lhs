@@ -123,7 +123,7 @@ A last brain teaser: why can't you crack an encoded clear-text message like
 
 Now, to something completely different: lists with $C^{++}$.
 
-\section{Lists with $C^{++}$}
+\section{Lists with $C^{++}$}\label{sec:lists}
 
 The first thing we need, is a new type of objects to hold data of any other type and
 a pointer to another object of its own type.

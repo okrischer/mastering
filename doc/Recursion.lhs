@@ -135,8 +135,7 @@ a general introduction like \href{http://learnyouahaskell.com/chapters}
 To create the picture, make sure that the file \texttt{haskell/mastering.cabal}
 contains the line \\
 \texttt{main-is:  Hanoi.hs} \\
-and then execute \\
-\texttt{<cabal build>} and \texttt{<cabal exec declarative -- -o hanoi.svg -w 400>} \\
+and then execute \texttt{<cabal exec mastering -- -o ../img/hanoi.svg -w 400>}
 from your terminal inside the directory \texttt{haskell}.
 
 \subsection{$C^{++}$}\label{subsec:cpprec}
@@ -169,7 +168,7 @@ The logic of \mintinline{cpp}{solve}:
 
 I'm using a \mintinline{cpp}{Queue} for capturing the moves,
 which is a recursive data structure based on lists, implementing the \emph{FIFO} principle.
-We will discuss queues in §~\ref{subsec:queue}.
+We will discuss queues in §~\ref{sec:lists}.
 
 It is perfectly legal to use recursion in $C^{++}$, as most compilers provide
 \href{https://en.wikipedia.org/wiki/Tail_call}{tail-call optimization}
@@ -244,31 +243,11 @@ Otherwise just end the animation (\mintinline{cpp}{catch} block).
 
 The animation itself is implemented with \href{https://www.sfml-dev.org/}{SFML} for $C^{++}$.
 If you're interested in how this works, have a look at \texttt{applications/hanoi.cpp}.
-After compiling the whole project with \texttt{cmake --build .} from the \texttt{build} folder,
-you can run the hanoi animation with \texttt{./Hanoi 4 1}, where the first parameter is the
+After compiling the whole project with \texttt{<cmake --build .>} from the \texttt{build} folder,
+you can run the hanoi animation with \texttt{<./Hanoi 4 1>}, where the first parameter is the
 number of disks, and the second is the delay in seconds between the frames of the animation.
 
 \section{Drawing Fractals}
-
-A definition of the term \emph{fractal}, taken from
-\href{https://fractalfoundation.org/resources/what-are-fractals/}{fractalfoundation.org}:
-\begin{quote}
-A fractal is a never-ending pattern.
-Fractals are infinitely complex patterns that are self-similar across different scales.
-They are created by repeating a simple process over and over in an ongoing feedback loop.
-Driven by recursion, fractals are images of dynamic systems – the pictures of Chaos.
-\end{quote}
-
-\subsection{Mandelbrot Fractal}
-
-The \emph{Mandelbrot fractal} is a two-dimensional representation of the
-\href{https://en.wikipedia.org/wiki/Mandelbrot_set}{Mandelbrot set}, created by repeatedly
-applying the function $f_c(z) = z^2 + c$ for every point of the resulting image.
-
-Without going into details, let's create a simple image with the \mintinline{haskell}{diagrams} package:
-
-\begin{code}
-\end{code}
 
 \section{Creating and Solving Mazes}
 

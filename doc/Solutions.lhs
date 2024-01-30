@@ -1,5 +1,10 @@
 \chapter{Solutions to the Exercises}\label{ch:solutions}
 
+The following code snipped is needed to compile the Haskell solutions in this file:
+\begin{code}
+import qualified Data.Char as C
+\end{code}
+
 \section{Lists}
 
 \paragraph{Exercise~\ref{exs:balanced}} ~\\
@@ -29,6 +34,7 @@ with result false (4).\\
 If the stack is not empty and the closing bracket does not correspond to the last opening bracket,
 we terminate as well with result false (5).\\
 Finally, we check wether the stack is empty and return that result as the final result (6).
+Notice, that the stack will be empty only if all brackets were matching.
 
 \paragraph{Exercise~\ref{exs:balhask}} ~\\
 
@@ -118,4 +124,54 @@ bool is_palindrome(std::string s) {
 }
 \end{cpp}
 
+The logic of this algorithm is straight forward: every letter from the input string is converted to
+lowercase and pushed onto a stack, respectively appended to a queue at the same time.
+With that, the letters will be arranged in reverse order.
+Then, we run through the elements of the lists and just check if they are equal.
+Using the \mintinline{cpp}{pop} method ensures that every checked element is removed from both lists.
+
 \paragraph{Exercise~\ref{exs:palhask}} ~\\
+
+The simplest solution would be to check wether the string equals the string reversed:
+
+\begin{spec}
+palindrome :: String -> Bool
+palindrome s = s == reverse s
+\end{spec}
+
+But, in order to make the solution functionally equivalent to the $C^{++}$ implementation, I'm
+going to add a check for letters and a conversion to lowercase.
+While I'm at it, I also replace the built-in function \mintinline{haskell}{reverse} with a self-written
+function, just for fun.
+
+\begin{code}
+palindrome :: String -> Bool
+palindrome s = cleaned == foldNflip cleaned
+  where cleaned = clean s
+
+clean :: String -> String
+clean = map C.toLower . filter C.isLetter
+
+foldNflip :: [a] -> [a]
+foldNflip = foldl (flip (:)) []
+\end{code}
+
+The most interesting part of that code is obviously my reverse function called
+\mintinline{haskell}{foldNflip}.
+It is not defined on \mintinline{haskell}{String}, but on a list with an arbitrary type
+\mintinline{haskell}{a}.
+Because it is working on strings, we can conclude that a \mintinline{haskell}{String}
+in Haskell is nothing else than a list of characters.
+That is also the reason why we can use other list-based higher-order functions like
+\mintinline{haskell}{map} and \mintinline{haskell}{filter} on strings.\\
+Now, to the logic of \mintinline{haskell}{foldNflip}:
+it folds (reduces from left to right) the given list with a function (in this case
+\mintinline{haskell}{flip (:)}) and an initial value (an empty list).
+The colon operator \mintinline{haskell}{:} is a function by itself and prepends a value to
+a list: \mintinline{haskell}{1:[2,3] == [1,2,3]}.\\
+So, when when using the \mintinline{haskell}{flip} function, which reverses
+the order of the arguments given to the colon operator,
+we are actually concatinating the elements of the original list in reverse order.
+
+After loading the solution file into ghci with \texttt{<ghci Solutions.lhs>}, you can test the
+function for example with \texttt{<palindrome "A man, a plan, a canal - Panama!">}.
