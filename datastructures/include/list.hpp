@@ -44,7 +44,7 @@ public:
       node = node->next;
     }
     if (node) return node->data;
-    else throw std::out_of_range{"Queue::peek()"};
+    else throw std::out_of_range{"List::peek(): empty list"};
   }
 
   // pop removes and returns the head of the list.
@@ -57,7 +57,7 @@ public:
       delete first;
       sz--;
       return elem;
-    } else throw std::out_of_range{"Queue::pop()"};
+    } else throw std::out_of_range{"List::pop(): empty list"};
   }
 
   // push_front inserts a new element at the head of the list.

@@ -5,27 +5,25 @@ The following code snipped is needed to compile the Haskell solutions in this fi
 import qualified Data.Char as C
 \end{code}
 
-\section{Lists}
-
 \paragraph{Exercise~\ref{exs:balanced}} ~\\
 
 \begin{cpp}
 bool is_balanced(std::string s) {
   std::map<char, char> matcher{{'}', '{'}, {']', '['}, {')', '('}};
-  auto stack = list::Queue<char>{};
+  auto stack = list::List<char>{};
 
-  for (char c : s) {                                          // (1)
-    if (c == '{' || c == '[' || c == '(') stack.push_front(c);// (2)
-    else if (c == '}' || c == ']' || c == ')') {              // (3)
-      if (stack.size() == 0) return false;                    // (4)
-      if (matcher[c] != stack.pop()) return false;            // (5)
+  for (char c : s) {                                            // (1)
+    if (c == '{' || c == '[' || c == '(') stack.push_front(c);  // (2)
+    else if (c == '}' || c == ']' || c == ')') {                // (3)
+      if (stack.size() == 0) return false;                      // (4)
+      if (matcher[c] != stack.pop()) return false;              // (5)
     }
   }
-  return stack.size() == 0;                                   // (6)
+  return stack.size() == 0;                                     // (6)
 }
 \end{cpp}
 
-I'm using a \mintinline{cpp}{Queue} as a stack for keeping track of opening brackets,
+I'm using a \mintinline{cpp}{List} as a stack for keeping track of opening brackets,
 and a \mintinline{cpp}{map} for matching opening and closing brackets.\\
 The algorithm traverses all characters of the input string (1) and pushes all opening brackets
 onto the stack (2).\\
@@ -102,8 +100,8 @@ match xs x           = x:xs
 
 \begin{cpp}
 bool is_palindrome(std::string s) {
-  auto stack = list::Queue<char>{};
-  auto queue = list::Queue<char>{};
+  auto stack = list::List<char>{};
+  auto queue = list::List<char>{};
   bool palindrome = true;
 
   for (auto c : s) {

@@ -146,13 +146,13 @@ How can we appoach this, using an imperative language?
 The simple answer is: we do exactly the same, which leads to the following implementation:
 
 \begin{cpp}
-auto* moves = new list::Queue<std::pair<char, char>>;   // (1)
+auto* moves = new List<std::pair<char, char>>;   // (1)
 
-void solve(int n, char s, char t, char g) {             // (2)
-  if (n == 0) return;                                   // (3)
-  solve(n-1, s, g, t);                                  // (4)
-  moves->push_back(std::make_pair(s,g));                // (5)
-  solve(n-1, t, s, g);                                  // (6)
+void solve(int n, char s, char t, char g) {      // (2)
+  if (n == 0) return;                            // (3)
+  solve(n-1, s, g, t);                           // (4)
+  moves->push_back(std::make_pair(s,g));         // (5)
+  solve(n-1, t, s, g);                           // (6)
 }
 \end{cpp}
 
@@ -166,9 +166,9 @@ The logic of \mintinline{cpp}{solve}:
   \item recursive case: move n-1 disks from temp to goal
 \end{enumerate}
 
-I'm using a \mintinline{cpp}{Queue} for capturing the moves,
-which is a recursive data structure based on lists, implementing the \emph{FIFO} principle.
-We will discuss queues in §~\ref{sec:lists}.
+I'm using a \mintinline{cpp}{list::List} for capturing the moves,
+which is a linked list, implementing the \emph{FIFO} principle.
+We will discuss Lists in §~\ref{sec:lists}.
 
 It is perfectly legal to use recursion in $C^{++}$, as most compilers provide
 \href{https://en.wikipedia.org/wiki/Tail_call}{tail-call optimization}
@@ -208,9 +208,9 @@ Thus, we will stick to our solution, and explore how to use it in order to creat
 a nice animation:
 
 \begin{cpp}
-auto* start = new list::Queue<int>;
-auto* temp = new list::Queue<int>;
-auto* goal = new list::Queue<int>;
+auto* start = new List<int>;
+auto* temp = new List<int>;
+auto* goal = new List<int>;
 
 void makeMove(std::pair<char, char> move) {
   auto from = getTower(move.first);
@@ -231,7 +231,7 @@ try {
 
 This code uses three stacks to implement the \emph{start}, \emph{temp}, and \emph{goal}
 towers for storing the current configuration.
-Each stack is implemented as a \mintinline{cpp}{Queue<int>}, but this time we're applying the
+Each stack is implemented as a \mintinline{cpp}{List<int>}, but this time we're applying the
 \emph{LIFO} principle by using the \mintinline{cpp}{push_front} method, instead of
 \mintinline{cpp}{push_back}, which we used to implement the moves queue.
 
@@ -244,7 +244,7 @@ Otherwise just end the animation (\mintinline{cpp}{catch} block).
 The animation itself is implemented with \href{https://www.sfml-dev.org/}{SFML} for $C^{++}$.
 If you're interested in how this works, have a look at \texttt{applications/hanoi.cpp}.
 After compiling the whole project with \texttt{<cmake --build .>} from the \texttt{build} folder,
-you can run the hanoi animation with \texttt{<./Hanoi 4 1>}, where the first parameter is the
+you can run the hanoi animation with e.g. \texttt{<./Hanoi 4 1>}, where the first parameter is the
 number of disks, and the second is the delay in seconds between the frames of the animation.
 
 \section{Drawing Fractals}

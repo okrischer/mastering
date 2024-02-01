@@ -1,6 +1,6 @@
 \chapter{Lists}\label{ch:lists}
 
-A \emph{list} is a linear recursive data structure.
+A \emph{list} is a linear linked data structure.
 When creating a list, you get some kind of reference to its first element, every element
 pointing to exactly one next element.
 Thus, traversing a list (e.g. for finding an element) requires a runtime of $\Theta(n)$,
@@ -32,6 +32,7 @@ Here's a quite elaborated example in Haskell, which implements and cracks the
 \begin{code}
 module Datastructures where
 import Data.Char
+import qualified Control.Applicative as from
 
 char2int :: Char -> Int
 char2int c = ord c - ord 'a'
@@ -126,13 +127,11 @@ Now, to something completely different: lists with $C^{++}$.
 \section{Lists with $C^{++}$}\label{sec:lists}
 
 The first thing we need, is a new type of objects to hold data of any other type and
-a pointer to another object of its own type.
+a pointer to a next object of its own type (this is the \emph{link} as used in linked-list).
 We'll call this type \mintinline{cpp}{Node}.
 
 \begin{cpp}
-template<typename T>
-class Node {
-public:
+struct Node {
   T data;
   Node* next;
 
@@ -141,14 +140,23 @@ public:
 };
 \end{cpp}
 
-Next, we define the public interface for lists by creating an abstract class, which contains
-only virtual functions:
+You may ask yourself, where the type \mintinline{cpp}{T} comes from.
+Well, it is defined as a typename in a \mintinline{cpp}{template} for the
+class \mintinline{cpp}{List}, in which \mintinline{cpp}{Node} is actually implemented as
+an inner class; so we don't need to repeat the typename definition here.
+
+Templates are the $C^{++}$ way of writing \emph{generic} code, which allows to work with
+elements of any given type inside a class, instead of beeing restricted to just a single type.
+
+See this in action in the next code snippet, where we define the public interface for linked lists
+by creating an \emph{abstract} class, which contains only \emph{virtual} functions.
+Notice, that there's no need to mark this function as abstract explicitly:
 
 \begin{cpp}
 template<typename T>
-class List {
+class LL {
 public:
-  virtual ~List() {}
+  virtual ~LL() {}
   virtual int size() const = 0;
   virtual T peek(int n) const = 0;
   virtual T pop() = 0;
@@ -157,84 +165,123 @@ public:
 };
 \end{cpp}
 
-The type \mintinline{cpp}{List} is a pure interface, so you can't instanciate any objects from it.
+The type \mintinline{cpp}{LL} is a pure interface and has no constructor, so you can't
+instanciate any objects from it.
 In order to do so, we need a concrete type, which implements the interface and overrides all
 virtual methods:
 
 \begin{cpp}
 template<typename T>
-class Queue : public List<T> {
+class List : public LL<T> {
 public:
-  Queue() : head{nullptr}, tail{nullptr}, sz{0} {}
-  ~Queue() {
-    Node<T>* node = head;
+  List() : head{nullptr}, tail{nullptr}, sz{0} {}
+  ~List() {
+    Node* node = head;
     while(node) {
-      Node<T>* curr = node;
+      Node* curr = node;
       node = node->next;
       delete curr;
     }
   }
+/* ---snip--- */
+private:
+  Node* head;
+  Node* tail;
+  int sz;
+};
+\end{cpp}
 
-  // size returns the current size of the list.
-  int size() const override {return sz;}
+Now we have a type with two pointers, one pointing to the head and the other to the tail
+of the list, and a constructor which initializes both with a \mintinline{cpp}{nullptr}.
+This is essential, because otherwise they would point anywhere (in contrast to other languages
+like Java or Go, which would initialize them with a \texttt{null} value by default), leading to
+segmentation faults later in your program.
 
-  // peek returns the element with the given index (starting with 1).
-  // If there is no element at the given index, an exception is thrown.
-  T peek(int n) const override {
-    Node<T>* node = head;
-    for (int i = 1; i < n && i < sz; i++) {
-      node = node->next;
-    }
-    if (node) return node->data;
-    else throw std::out_of_range{"Queue::peek()"};
+We also have a destructor \mintinline{cpp}{~List()}, which is necessary to delete all linked nodes,
+which have been created with a call to \mintinline{cpp}{new} by the inserting functions
+\mintinline{cpp}{push_front()} and \mintinline{cpp}{push_back()}, which we will explore next.
+This destuctor will be called by the compiler, whenever an automatic variable
+(e.g. \mintinline{cpp}{auto list = List<int>()}) gets out of scope.\\
+But if you have created an instance with \texttt{new}
+(e.g. \mintinline{cpp}{auto* list = new List<int>}), you have to call
+\mintinline{cpp}{delete} explictly.
+
+
+\begin{cpp}
+  void push_front(T elem) override {
+    head = new Node(elem, head);
+    if (!tail) tail = head;
+    sz++;
   }
 
-  // pop removes and returns the head of the list.
-  // If the list is empty, an exception is thrown.
+  void push_back(T elem) override {
+    if (!tail) {
+      head = new Node(elem, head);
+      tail = head;
+    } else {
+      tail->next = new Node(elem, nullptr);
+      tail = tail->next;
+    }
+    sz++;
+  }
+\end{cpp}
+
+Having two different functions for inserting elements, allows to use a \mintinline{cpp}{List}
+either as a \href{https://en.wikipedia.org/wiki/Stack_(abstract_data_type)}{LIFO} structure
+(aka a stack), or as a \href{https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics)}{FIFO}
+structure (aka a queue).
+But, make sure that once you have instanciated a list, you use them either as a stack or as a
+queue exclusively, i.e. you call either the method \mintinline{cpp}{push_front()} or
+\mintinline{cpp}{push_back()} on it, otherwise it would be quite hard to predict the results.
+
+\begin{cpp}
   T pop() override {
     if (head) {
-      Node<T>* first = head;
+      Node* first = head;
       T elem = head->data;
       head = head->next;
       delete first;
       sz--;
       return elem;
-    } else throw std::out_of_range{"Queue::pop()"};
+    } else throw std::out_of_range{"List::pop(): empty list"};
   }
-
-  // push_front inserts a new element at the head of the list.
-  void push_front(T elem) override {
-    head = new Node<T>(elem, head);
-    if (!tail) tail = head;
-    sz++;
-  }
-  // push_back inserts a new element at the tail of the list.
-  void push_back(T elem) override {
-    if (!tail) {
-      head = new Node<T>(elem, head);
-      tail = head;
-    } else {
-      tail->next = new Node<T>(elem, nullptr);
-      tail = tail->next;
-    }
-    sz++;
-  }
-
-private:
-  Node<T>* head;
-  Node<T>* tail;
-  int sz;
-};
 \end{cpp}
 
-Now, let's put \mintinline{cpp}{Queue} into action by solving some exercises.
+The member function \mintinline{cpp}{pop} returns and removes the next element of the list.
+Observe, that this is always taken from the head of the list, regardless of wether used
+as a stack or as a queue.
+If the list is empty (no pointer to head), an \mintinline{cpp}{out_of_range} exception is thrown.
+This could also be solved by returning a \mintinline{cpp}{NULL} value, but I prefer to
+make this explicit, such that any client code will be forced to handle that case.
+So, if a client code `forgets' to check for valid return data, it will be noticed, making
+the API much more safer to use.
+We will see examples for this in the exercises.
+
+\begin{cpp}
+  T peek(int n) const override {
+    Node* node = head;
+    for (int i = 1; i < n && i < sz; i++) {
+      node = node->next;
+    }
+    if (node) return node->data;
+    else throw std::out_of_range{"List::peek(): empty list"};
+  }
+\end{cpp}
+
+The \mintinline{cpp}{peek} function completes the API and usually returns the next element
+of the list without removing it.
+But I decided to make it a bit more comfortable by allowing an index parameter, so that
+any element of the list could be retrieved (the index for the first element is 1).
+This also allows the list to be inspected for debugging or logging purposes.
+
+Having all that in place, let's put lists into action by solving some exercises.
 Don't worry if you cannot solve them off the cuff; all exercises have detailled solutions
 in appendix~\ref{ch:solutions} \emph{Solutions to the exercises}.
 But make sure to give them a honest try at first, otherwise you will learn nothing from them.
 
 \begin{exs}\label{exs:balanced}
 Create a $C^{++}$ program to check for balanced brackets of a given string.\\
-\emph{Hint:} use \mintinline{cpp}{Queue} as a LIFO data structure (aka a stack),
+\emph{Hint:} use a \mintinline{cpp}{List} as a LIFO data structure (aka a stack),
 i.e. employ its methods \mintinline{cpp}{push_front} and \mintinline{cpp}{pop}.
 \end{exs}
 
@@ -245,7 +292,7 @@ Solve exercise~\ref{exs:balanced} with Haskell.
 \begin{exs}\label{exs:palindrome}
 Create a $C^{++}$ program to check wether a given string is a
 \href{https://en.wikipedia.org/wiki/Palindrome}{palindrome}.\\
-\emph{Hint:} use two \mintinline{cpp}{Queue}s, one as a stack and the other as a queue.
+\emph{Hint:} use two \mintinline{cpp}{List}s, one as a stack and the other as a queue.
 \end{exs}
 
 \begin{exs}\label{exs:palhask}
