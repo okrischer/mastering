@@ -114,28 +114,27 @@ how to structure that data, in order to allow efficient processing with our prog
 
 Data Structures come in two flovours, which I will call
 \begin{itemize}
-  \item \emph{recursive} data strucrures
-  \item \emph{continuous} data structures
+  \item \emph{linked} data strucrures
+  \item \emph{contiguous} data structures
 \end{itemize}
 
 in this text.
 
-Recursive data structures typically involve some kind of pointer,
+Linked data structures typically involve some kind of pointer,
 where one element of the structure points to another.
-Common recursive structures are \emph{lists} (with subtypes like \emph{queues}
+Common linked structures are \emph{lists} (with subtypes like \emph{queues}
 and \emph{stacks}) and \emph{trees} (with various subtypes, depending on the use case).
-Recursive structures are the main workhorse for functional languages like
-Haskell or Scheme. This is a natural choice, as those functional languages typically
-don't have constructs like loops, and all processing of data has to be done recursively.
+Linked structures are the main workhorse for functional languages like
+Haskell or Scheme.
 
-Continuous data structures, on the other hand, are typically based on \emph{arrays}
+Contiguous data structures, on the other hand, are typically based on \emph{arrays}
 (continuous blocks of data, closely coupled to the physical memory layout of a machine).
 Common continuous structures are \emph{maps}, \emph{sets} and \emph{dictionaries},
 and they are typically used in imperative languages like $C^{++}$, for good reasons.
 Be aware, that some languages (e.g. Python) call their arrays lists, but even those remain
 continuous structures.
 
-Like with all things, one cannot simply tell which one is better, recursive or continuous;
+Like with all things, one cannot simply tell which one is better, linked or contiguous;
 it always depends on the current use case.
 That said, it is obvious that both have their andvantages and disadvantages.
 In this second part of the book we will explore the characteristics of some data structures,

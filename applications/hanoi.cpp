@@ -1,11 +1,12 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include "list.hpp"
+using namespace list;
 
-auto* moves = new list::Queue<std::pair<char, char>>;
-auto* start = new list::Queue<int>;
-auto* temp = new list::Queue<int>;
-auto* goal = new list::Queue<int>;
+auto* moves = new List<std::pair<char, char>>;
+auto* start = new List<int>;
+auto* temp = new List<int>;
+auto* goal = new List<int>;
 
 // solve the towers of hanoi puzzle with recursion
 void solve(int n, char s, char t, char g) {
@@ -16,7 +17,7 @@ void solve(int n, char s, char t, char g) {
 }
 
 // get the towers for making a move
-list::List<int>* getTower(char t) {
+List<int>* getTower(char t) {
   switch (t) {
   case 's':
     return start;
