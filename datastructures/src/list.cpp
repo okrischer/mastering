@@ -1,5 +1,6 @@
 #include "list.hpp"
 #include <cctype>
+#include <string>
 #include <map>
 
 // Checks wether a given string is a palindrome.

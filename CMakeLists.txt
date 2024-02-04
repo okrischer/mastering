@@ -26,12 +26,16 @@ add_subdirectory(datastructures)
 
 add_executable(DS_Test tests/ds_test.cpp)
 target_link_libraries(DS_Test PUBLIC datastructures)
-target_include_directories(DS_Test PUBLIC datastructures/include)
+target_include_directories(DS_Test PUBLIC datastructures/include
+                          #/opt/homebrew/Cellar/boost/1.84.0/include
+                          )
 
 add_executable(Hanoi applications/hanoi.cpp)
 target_link_libraries(Hanoi PUBLIC datastructures)
 target_link_libraries(Hanoi PRIVATE sfml-graphics)
-target_include_directories(Hanoi PUBLIC datastructures/include)
+target_include_directories(Hanoi PUBLIC datastructures/include
+                          #/opt/homebrew/Cellar/sfml/2.6.1/include
+                          )
 
 enable_testing()
 add_test(NAME Test_DS COMMAND DS_Test --log_level=unit_scope)

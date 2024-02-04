@@ -1,6 +1,8 @@
 _minted-Main/
 build/
 .cache/
+.vscode/
+.DS_Store
 dist-newstyle/
 img/
 svg-inkscape/
