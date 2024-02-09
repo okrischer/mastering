@@ -75,6 +75,7 @@ int main(int argc, char* argv[]) {
   settings.antialiasingLevel = 8;
   auto window = sf::RenderWindow{ {300u, 100u}, "Towers of Hanoi", sf::Style::Default, settings };
   auto wsz = window.getSize();
+  bool paused = false;
 
   if (argc < 3) {
     std::cout << "usage: Hanoi <number of disks> <speed of animation>\n";
@@ -114,11 +115,14 @@ int main(int argc, char* argv[]) {
   // create disk
   sf::RectangleShape disk(sf::Vector2f(10.f, 10.f));
 
-
+  // begin animation
   while (window.isOpen()) {
     for (auto event = sf::Event{}; window.pollEvent(event);) {
       if (event.type == sf::Event::Closed) {
         window.close();
+      }
+      if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::P) {
+        paused = !paused;
       }
     }
 
@@ -167,15 +171,17 @@ int main(int argc, char* argv[]) {
     window.display();
 
     // make next move
-    try {
-      auto move = moves->pop();
-      makeMove(move);
-    } catch (std::out_of_range& e) {
-      std::cout << "successfully displayed animation.\n";
-      window.close();
-      return 0;
+    if (!paused) {
+      try {
+        auto move = moves->pop();
+        makeMove(move);
+      } catch (std::out_of_range& e) {
+        std::cout << "successfully displayed animation.\n";
+        window.close();
+        return 0;
+      }
     }
-  }
+  } // end of animation
 
   delete moves;
   delete start;

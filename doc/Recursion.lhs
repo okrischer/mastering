@@ -74,6 +74,8 @@ In Haskell this could look like so:
 
 \begin{code}
 module Recursion where
+import Data.List (permutations)
+import qualified Control.Applicative as case
 
 type Move = (Int, Int)                        -- (1)
 
@@ -249,7 +251,238 @@ number of disks, and the second is the delay in seconds between the frames of th
 
 \section{Drawing Fractals}
 
-\section{Creating and Solving Mazes}
 
 \section{Solving the n-Queens Problem}
 
+The \href{https://en.wikipedia.org/wiki/Eight_queens_puzzle}{n-queens problem} is the problem
+of placing $n$ non-attacking queens on an $n \times n$ chessboard.
+Solutions exist for all natural numbers $n$ with the exception of $n = 2 \ \text{and} \ n = 3$.
+
+Although the exact number of solutions is only known for $n \leq 27$, the asymptotic growth
+rate of the number of solutions is approximately $(0.143 n)^n$. 
+
+We'll explore two different \emph{recursive} algorithms for solving the problem,
+the first using \emph{generate and test} in Haskell, and the other using \emph{backtracking}
+in $C^{++}$.
+
+\subsection{Generate And Test}
+
+\emph{Generate and test} algorithms belong to the domain of \emph{searching} algorithms
+and are widely used in functional languages to solve combinatorial problems.
+While there are many subfields of \href{https://en.wikipedia.org/wiki/Combinatorics}
+{combinatorics} and many related problems, they all have in common that the search
+space is growing very quickly and they usually do not show any monotonic property, which
+could be exploited to reduce the search space.
+
+So, the idea is to generate all possible solution candidates at first, and then to filter out
+the valid ones (the test step), following this pattern:
+
+\begin{spec}
+solutions = filter valid . candidates
+\end{spec}
+
+For the n-queens problem there are $\binom{64}{8} = 4,426,165,368$ ways to place 8 queens
+on a $8 \times 8$ chessboard.
+There is no hope of solving a problem with such a big search space in reasonbale time.
+For that, we need to \emph{constrain} the generating function in order to generate only
+\emph{good} candidates, which are more likely to be actual solutions.
+
+Our method for solving this problem will take into account the observation that there
+will always be one queen in each column: if there were two or more then they would
+be able to attack each other, and if there were none then some other column would have
+at least two.
+This will reduce the search space to $8^8 = 16,777,216$ possible solutions.
+
+We'll label rows and columns with integers, and positions on the board with their
+coordinates.
+The solutions are boards, which are lists giving the row numbers of the queens in
+each column.
+
+\begin{code}
+type Row = Int
+type Col = Int
+type Coord = (Col, Row)
+type Board = [Row]
+
+queens1 :: Col -> [Board]
+queens1 0 = [[]]                   -- base case: return empty board
+queens1 n = [q:qs | q <- [1..8],
+            qs <- queens1 (n-1),   -- recursion: fill remaining rows
+            and [not (attack (1, q) (x, y)) | (x, y) <- zip [2..n] qs]]
+
+attack :: Coord -> Coord -> Bool
+attack (x, y) (x', y') =
+  y == y'               -- same row
+  || x + y == x' + y'   -- same left diagonal
+  || x - y == x' - y'   -- same right diagonal
+\end{code}
+
+The main part of that algorithm is the recursive call, where we fill in the row numbers
+for the remaining columns.
+Observe, that we've included the test step within the generating function
+(\mintinline{haskell}{not . attack}), which is a good thing as only valid solutions
+are generated, and we don't need to keep track of the unvalid ones.
+Unfortunately, all $8^8$ combinations still have to be evaluated,
+which leads to a poor performance of the algorithm.
+
+To test the performance, set the \texttt{+s} flag in ghci with \texttt{:set +s} and
+then call \texttt{head (queens 8)} with the file \texttt{Recursion.lhs} loaded.
+That will display the first solution and the time taken to find it, which - on my
+machine - is 4 seconds.
+When you call \texttt{length (queens 8)}, you will experience even longer running times
+(on my machine 59 seconds).
+The reason for that big difference in running time is that we are working with lazy lists
+in Haskell.
+So, when you call \texttt{head} the algorithm is aborted after retrieving the
+first solution, whereas calling \texttt{length} needs to retrieve all solutions.
+
+But, fortunately, there is room for improvement: if we only check all permutations of
+the row numbers \mintinline{haskell}{[1..8]}, this will reduce the search space to
+$8! = 40,320$ combinations, and we don't need the test for the same row anymore, as every
+row number will be unique.
+
+\begin{code}
+queens2 :: Int -> [Board]
+queens2 n = filter valid $ permutations [1..n]
+
+valid :: Board -> Bool
+valid qs = and [not (attack' p p') | [p, p'] <- choose 2 $ zip [1..] qs]
+
+attack' :: Coord -> Coord -> Bool
+attack' (x, y) (x', y') = abs (x-x') == abs (y - y')
+
+choose :: Int -> [a] -> [[a]]
+choose 0 xs = [[]]
+choose k [] = []
+choose k (x:xs) = choose k xs ++ map (x:) (choose (k-1) xs)
+\end{code}
+
+When you call this implementation, you will see that it is much more efficient as our
+first solution: on my machine it takes only 350 ms to compute all 92 solutions.
+
+With this implementation, the testing function \mintinline{haskell}{valid} seems to
+do the main work: it checks wether every given queen coordinate from the solution
+candidate is indeed save, i.e. it cannot be attacked by any of the other queens.
+The \mintinline{haskell}{attack'} function was simplified to only one statement, which checks
+only the diagonals, as queens are guaranteed not to sit on the same row or column.
+
+But the real (recursive) work is done by the library function \mintinline{haskell}
+{permutations}, which produces all permutations of the given input list.
+This is not a bad thing per se, but as this chapter is about recursion, we'll create
+another solution, making the recursion more explicit.
+While we are at it, we will also include the test step in the generating function,
+as we did in our first solution.
+
+\begin{code}
+queens3 :: Int -> [Board]
+queens3 n = run n where
+    run 0 = [[]]
+    run r = [q:qs | q <- [1..n], qs <- qss, q `notElem` qs, save q qs]
+      where qss = run (r-1)
+
+save :: Int -> [Int] -> Bool
+save q qs = and [abs (q - q') /= r' - 1 | (r', q') <- zip [2..] qs]
+\end{code}
+
+And here you have it: a very compact recursive algorithm, generating and testing all
+sulution candidates in one step.
+This version of the algorithm is optimized to generate all solutions, and when I call
+it with \texttt{length (queens3 8)} on my machine, it computes all 92 solutions in just 20 ms.
+
+\subsection{Backtracking}
+
+\emph{Backtracking} does basically the same that the \emph{generate and test} algorithm
+from the last section did: it searches a non-monotonic search-space for solutions
+that match some pre-defined constraints.
+But in contrast to the former, it doesn't need to generate a list of all possible candidates;
+instead, it is just modifying a single instance of a solution candidate.
+
+This is possible because in an imperative language we have direct access to the underlying
+contiguous memory, providing constant time access to arbitrary elements of the solution
+candidate.
+We're also able to update elements of the solution candidate in place, which leads
+to a much smaller space complexity than in an functional setting.
+
+With all that in mind, a recursive backtracking solution for the n-queens problem can be
+implemented like so:
+
+\begin{cpp}
+int solutionCount = 0;
+std::vector<int> board;
+
+bool isSafe(std::vector<int> const& board, int row) {
+  for (int col = 0; col < row; col++) {
+    if (board[col] == board[row]) return false;
+    if (abs(board[row] - board[col]) == row - col) return false;
+  }
+  return true;
+}
+
+void placeQueen(std::vector<int>& board, int row) {
+  int sz = board.size();
+  if (row == sz) {                                        // (2)
+    printBoard(board);
+    solutionCount++;
+  } else {
+    for (int col = 0; col < sz; col++) {                  // (3)
+      board[row] = col;
+      if (isSafe(board, row))
+        placeQueen(board, row + 1);                       // (4)
+    }
+  }                                                       // (5)
+}
+
+board = std::vector<int>(8, 0);
+placeQueen(board, 0);                                     // (1)
+\end{cpp}
+
+The logic is comparable to that of \mintinline{haskell}{queens1}:
+\begin{enumerate}
+  \item start the computation by calling the recursive function \texttt{placeQueen}
+  with the initial solution candidate (a vector of 8 columns, all set to 0)
+  \item base case: if all row numbers are already set, we have a solution and
+  increase the solution counter; optionally print out the solution
+  \item recursive case: iterate over all columns of the candidate and check wether a
+  queen can be put savely at this position
+  \item recursive call: if the position is safe, call \texttt{placeQueen} with next row 
+  \item if the queen cannot be placed savely, do nothing.
+\end{enumerate}
+
+There is nothing new for the testing function \mintinline{cpp}{isSafe}, so we will
+concentrate on the recursive function \mintinline{cpp}{placeQueen}:\\
+we have two loops: the recursive outer loop, running through the row numbers, and an
+inner for-loop, iterating over the colomns.
+
+If a queen can be placed safely on the given row, the algorithm continues with a recursive
+call to the next row.
+But, when a queen connot be placed on that row, we do nothing.
+
+What happens if we do nothing in a recursive setting?\\
+Well, all the recursive instructions, stored on the stack, are executed in reverse order,
+until the last recursive call is reached.
+And since we have done nothing, the computation is just set back to the point of the last recursive
+call.
+Then the process continues at this point.
+
+So, what the algorithm really does is that:\\
+it tries to find a column in which a queen can be put for the current row (starting with 0).
+If that does not succeed, it rolls back the computation to the preceeding row,
+places a queen in the next safe column of that row and continues with checking the next row.
+Because of the intertwining of inner and outer loop we can reach the base case several times, 
+namely every time when all row numbers have been set, i.e. a solution is found.
+But the computation does not necessarily stop at that point: there is no \mintinline{cpp}{return}
+statement in the base case.
+It only stops if no more solutions are found, i.e. all nested recursive calls are processed.
+
+Now you could think that this algorithm has to check all $8^8 = 16,777,216$ combinations like
+our first haskell version did, but that's not the case.
+Because the algorithm rejects attacking positions even on incomplete boards, setting back the
+search to the last valid candidate, it examines actually only 15,720 possible queen placements.
+Together with the fact, that we're using fast in-place updates on a small data structure, the
+algorithm is very fast.
+On my machine it took only 5 ms to compute and print all 92 solutions.
+
+Of course, you could implement the row-loop with an iterative for-loop as well.
+But then you would have to keep \emph{track} of the last valid combination explicitly,
+and set the search \emph{back} to that point in case the constraint cannot be satisfied.
+Hence the name \emph{backtracking}.

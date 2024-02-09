@@ -15,7 +15,6 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
-
 include(FetchContent)
 FetchContent_Declare(SFML
   GIT_REPOSITORY https://github.com/SFML/SFML.git
@@ -26,16 +25,15 @@ add_subdirectory(datastructures)
 
 add_executable(DS_Test tests/ds_test.cpp)
 target_link_libraries(DS_Test PUBLIC datastructures)
-target_include_directories(DS_Test PUBLIC datastructures/include
-                          #/opt/homebrew/Cellar/boost/1.84.0/include
-                          )
+# target_include_directories(DS_Test PUBLIC /opt/homebrew/Cellar/boost/1.84.0/include)
 
 add_executable(Hanoi applications/hanoi.cpp)
 target_link_libraries(Hanoi PUBLIC datastructures)
 target_link_libraries(Hanoi PRIVATE sfml-graphics)
-target_include_directories(Hanoi PUBLIC datastructures/include
-                          #/opt/homebrew/Cellar/sfml/2.6.1/include
-                          )
+
+add_executable(Queens applications/queens.cpp)
+target_link_libraries(Queens PUBLIC datastructures)
+target_link_libraries(Queens PRIVATE sfml-graphics)
 
 enable_testing()
 add_test(NAME Test_DS COMMAND DS_Test --log_level=unit_scope)
