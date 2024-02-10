@@ -16,11 +16,11 @@ bool isSafe(std::vector<int> const& board, int row) {
 }
 
 void placeQueen(std::vector<int>& board, int row) {
-  int sz = board.size();
-  if (row == sz) {
+  int n = board.size();
+  if (row == n) {
     solutions->push_back(board);
   } else {
-    for (int col = 0; col < sz; col++) {
+    for (int col = 0; col < n; col++) {
       board[row] = col;
       if (isSafe(board, row)) placeQueen(board, row + 1);
     }

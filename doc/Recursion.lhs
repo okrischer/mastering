@@ -75,7 +75,6 @@ In Haskell this could look like so:
 \begin{code}
 module Recursion where
 import Data.List (permutations)
-import qualified Control.Applicative as case
 
 type Move = (Int, Int)                        -- (1)
 
@@ -256,7 +255,7 @@ number of disks, and the second is the delay in seconds between the frames of th
 
 The \href{https://en.wikipedia.org/wiki/Eight_queens_puzzle}{n-queens problem} is the problem
 of placing $n$ non-attacking queens on an $n \times n$ chessboard.
-Solutions exist for all natural numbers $n$ with the exception of $n = 2 \ \text{and} \ n = 3$.
+Solutions exist for all natural numbers $n$ with the exception of $n=2 \ \text{and} \ n=3$.
 
 Although the exact number of solutions is only known for $n \leq 27$, the asymptotic growth
 rate of the number of solutions is approximately $(0.143 n)^n$. 
@@ -326,11 +325,11 @@ Unfortunately, all $8^8$ combinations still have to be evaluated,
 which leads to a poor performance of the algorithm.
 
 To test the performance, set the \texttt{+s} flag in ghci with \texttt{:set +s} and
-then call \texttt{head (queens 8)} with the file \texttt{Recursion.lhs} loaded.
+then call \texttt{head (queens1 8)} with the file \texttt{Recursion.lhs} loaded.
 That will display the first solution and the time taken to find it, which - on my
 machine - is 4 seconds.
-When you call \texttt{length (queens 8)}, you will experience even longer running times
-(on my machine 59 seconds).
+When you call \texttt{length (queens1 8)}, you will experience even longer running times
+(on my machine 57 seconds).
 The reason for that big difference in running time is that we are working with lazy lists
 in Haskell.
 So, when you call \texttt{head} the algorithm is aborted after retrieving the
@@ -419,12 +418,12 @@ bool isSafe(std::vector<int> const& board, int row) {
 }
 
 void placeQueen(std::vector<int>& board, int row) {
-  int sz = board.size();
-  if (row == sz) {                                        // (2)
+  int n = board.size();
+  if (row == n) {                                        // (2)
     printBoard(board);
     solutionCount++;
   } else {
-    for (int col = 0; col < sz; col++) {                  // (3)
+    for (int col = 0; col < n; col++) {                  // (3)
       board[row] = col;
       if (isSafe(board, row))
         placeQueen(board, row + 1);                       // (4)
@@ -476,9 +475,9 @@ It only stops if no more solutions are found, i.e. all nested recursive calls ar
 
 Now you could think that this algorithm has to check all $8^8 = 16,777,216$ combinations like
 our first haskell version did, but that's not the case.
-Because the algorithm rejects attacking positions even on incomplete boards, setting back the
-search to the last valid candidate, it examines actually only 15,720 possible queen placements.
-Together with the fact, that we're using fast in-place updates on a small data structure, the
+Because the algorithm rejects attacking positions even on incomplete boards,
+it examines actually only 15,720 possible queen placements.
+Together with the fact, that we're using fast in-place updates on a tiny data structure, the
 algorithm is very fast.
 On my machine it took only 5 ms to compute and print all 92 solutions.
 
@@ -486,3 +485,77 @@ Of course, you could implement the row-loop with an iterative for-loop as well.
 But then you would have to keep \emph{track} of the last valid combination explicitly,
 and set the search \emph{back} to that point in case the constraint cannot be satisfied.
 Hence the name \emph{backtracking}.
+
+I've used such a non-recursive backtracking algorithm for creating a simple animation,
+visualizing the steps for finding a solution:
+
+\begin{cpp}
+void placeQueen(std::vector<int>& board) {
+  int n = board.size();
+  int row = 0;
+  int col = 0;
+  auto* last_col = new List<int>;
+  bool found = false;
+
+  while (row < n) {               // (1)
+    while (col < n && !found) {
+      board[row] = col;
+      if (isSafe(board, row)) {   // (2)
+        found = true;
+        break;
+      }
+      col++;
+    }
+    if (found) {                  // (3)
+      last_col->push_front(col);
+      col = 0;
+      row++;
+    } else {                      // (4)
+      row--;
+      auto lc = last_col->pop();
+      while (lc > n-2) {          // (5)
+        row--;
+        lc = last_col->pop();
+      }
+      col = lc+1;                 // (6)
+    }
+    found = false;
+  }
+}
+\end{cpp}
+
+As you can see, the algorithm isn't quite that elegant, and much harder to comprehend:
+
+It works row-wise from top to down (1), trying to find a safe column for each row,
+testing every column against the whole board generated so far (2).\\
+If that succeeds (3), the current column is pushed onto a stack for \emph{track}-keeping.
+Then the column is reset and the search continues with the next row.\\
+If no safe column is found for the current row (4), the row is set \emph{back} to the preceeding row.
+We also need to set \emph{back} to the last set column of that row.\\
+But here's the problem: if that column was already set to the last position of that row,
+we cannot simply increase the column by one to continue the search from there.
+Instead, we have to search our way back to the preceeding row, where the column is not set on
+the last position (5).
+This is why we need a stack to store the last set column, as we do not know in advance how far
+to go back.
+When, eventually, a row with a fitting column is found, the search is set \emph{back} to that
+row and the next column (6).
+
+Observe, that this implementation will only find the first solution, which is what we want
+for the animation.
+But, when you want to get all solutions, you'll have to add at least another iterative loop.\\
+So now, you can hopefully see the advantage of recursion for this problem:
+we only need two loops for computing all solutions without explicit bookkeeping.
+
+If you want to watch the animation, just call \texttt{./Queens 8} from the \texttt{build} directory.
+The final solution is displayed in the last frame of the animation, which happens to be identical
+to the first solution of \mintinline{haskell}{queens1} from the last subsection:
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.5\textwidth]{../img/n-Queens.png}
+  \caption[n-Queens Problem]{First solution for a $8\times8$ board of n-Queens problem}
+  \label{fig:n-queens}
+\end{figure}
+
+It took 113 steps (valid sub-configurations) and only 876 tests to reach this solution.

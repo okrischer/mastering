@@ -31,7 +31,7 @@ add_executable(Hanoi applications/hanoi.cpp)
 target_link_libraries(Hanoi PUBLIC datastructures)
 target_link_libraries(Hanoi PRIVATE sfml-graphics)
 
-add_executable(Queens applications/queens.cpp)
+add_executable(Queens applications/queens_anim.cpp)
 target_link_libraries(Queens PUBLIC datastructures)
 target_link_libraries(Queens PRIVATE sfml-graphics)
 
