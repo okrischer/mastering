@@ -4,7 +4,6 @@ build/
 .vscode/
 .DS_Store
 dist-newstyle/
-img/
 svg-inkscape/
 Testing/
 *.aux
